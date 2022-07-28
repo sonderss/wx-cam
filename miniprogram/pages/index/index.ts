@@ -9,7 +9,7 @@ Page({
     hasUserInfo: false,
     canIUse: wx.canIUse('button.open-type.getUserInfo'),
     canIUseGetUserProfile: false,
-    isOpen:false,
+    timer: -1,
     canIUseOpenData: wx.canIUse('open-data.type.userAvatarUrl') && wx.canIUse('open-data.type.userNickName') // 如需尝试获取用户信息可改为false
   },
   // 事件处理函数
@@ -25,17 +25,22 @@ Page({
         canIUseGetUserProfile: true
       })
     }
+    const this_ = this
     // 监听关闭
     wx.onSocketClose((e:any) => {
       console.log(e)
+      clearInterval(this_.data.timer)
       wx.showToast({title:'关闭了'})
     })
     // 监听打开
     wx.onSocketOpen(() => {
       console.log('onSocketOpen')
-      this.setData({
-        isOpen: true
-      })
+      // this_.data.timer = setInterval(() => {
+        this.sendWsMsg()
+      // }, 1000)
+      // this.setData({
+      //   isOpen: true
+      // })
     })
     // 接收消息
     wx.onSocketMessage((e:any) => {
@@ -65,22 +70,15 @@ Page({
   },
   // 发送消息
   sendWsMsg() {
-    if(this.data.isOpen) {
-      console.log(123)
-      const arrayBuffer = "aaa"
-      console.log(arrayBuffer)
+      // const arrayBuffer = "aaa"
+      // console.log(arrayBuffer)
       // {
       //   "event" : "hello2",
       //   "data" : "测试数据"
       //   }
       wx.sendSocketMessage({
         data: JSON.stringify({event:'msgClient',data:1}),
-        complete: (e:any) => {
-          console.log(e)
-        } 
       })
-    }
-   
   },
   // 关掉ws
   closeWs() {
